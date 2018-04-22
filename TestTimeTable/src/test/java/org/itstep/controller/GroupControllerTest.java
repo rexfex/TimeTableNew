@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -93,7 +94,6 @@ public class GroupControllerTest {
 		Mockito.verify(groupService, Mockito.times(1)).get(Mockito.anyString());
 	}
 
-	@Ignore
 	@Test
 	public void testFindAllByCourse() throws URISyntaxException {
 		Mockito.when(groupService.findAllByCourse(Mockito.anyString())).thenReturn(groups);
@@ -101,7 +101,7 @@ public class GroupControllerTest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("course", "1");
 		
-		RequestEntity<HttpHeaders> request = new RequestEntity<HttpHeaders>(headers, HttpMethod.GET, new URI("/group/get-by-course"));
+		RequestEntity request = new RequestEntity(headers, HttpMethod.GET, new URI("/group/get-by-course"));
 		ResponseEntity<List> response = restTemplate.exchange(request, List.class);
 		
 		assertEquals(HttpStatus.OK, response.getStatusCode());
