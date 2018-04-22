@@ -22,7 +22,7 @@ public class SubjectController {
 	@Autowired
 	SubjectService subjectService;
 
-	@PostMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.TEXT_PLAIN_VALUE }, produces = {
+	@PostMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
 			MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<Subject> save(@RequestBody Subject subject) {
 		Subject savedSubject = subjectService.save(subject);
@@ -32,7 +32,7 @@ public class SubjectController {
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
-	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.TEXT_PLAIN_VALUE }, produces = {
+	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
 			MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<Subject> update(@RequestBody Subject subject) {
 		Subject savedSubject = subjectService.update(subject);
@@ -42,7 +42,7 @@ public class SubjectController {
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
-	@GetMapping( produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@GetMapping( produces = { MediaType.APPLICATION_JSON_UTF8_VALUE }, consumes = { MediaType.ALL_VALUE })
 	ResponseEntity<Subject> getOne(@RequestHeader String name) {
 		Subject subject = subjectService.get(name);
 		if (subject != null) {
@@ -51,10 +51,10 @@ public class SubjectController {
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
-	@DeleteMapping (consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.TEXT_PLAIN_VALUE })
+	@DeleteMapping (consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity delete(@RequestBody Subject subject) {
 		subjectService.delete(subject);
-		return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity(HttpStatus.OK);
 	}
 
 }

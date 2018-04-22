@@ -34,7 +34,8 @@ public class TeacherController {
 		return new ResponseEntity<Teacher>(HttpStatus.BAD_REQUEST);
 	}
 
-	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity update(@RequestBody Teacher teacher) {
 		Teacher savedTeacher = teacherService.update(teacher);
 		if (savedTeacher != null) {
@@ -43,7 +44,7 @@ public class TeacherController {
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
-	@GetMapping(path = "/get-one", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@GetMapping(path = "/get-one", consumes = { MediaType.ALL_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<Teacher> getOne(@RequestHeader String login) {
 		Teacher savedTeacher = teacherService.get(login);
 		if (savedTeacher != null) {
@@ -52,7 +53,7 @@ public class TeacherController {
 		return new ResponseEntity<Teacher>(HttpStatus.BAD_REQUEST);
 	}
 
-	@GetMapping(path = "/get-by-subject", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@GetMapping(path = "/get-by-subject", consumes = { MediaType.ALL_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<List<Teacher>> findAllBySubject(@RequestHeader String name) {
 		List<Teacher> teachers = teacherService.findAllBySubject(name);
 		if (teachers != null) {
@@ -63,9 +64,7 @@ public class TeacherController {
 
 	@DeleteMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity delete(@RequestBody Teacher teacher) {
-
 		teacherService.delete(teacher);
 		return new ResponseEntity(HttpStatus.OK);
-
 	}
 }

@@ -34,7 +34,8 @@ public class StudentController {
 		return new ResponseEntity<Student>(HttpStatus.BAD_REQUEST);
 	}
 
-	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@PutMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
+			MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity update(@RequestBody Student student) {
 		Student savedStudent = studentService.update(student);
 		if (savedStudent != null) {
@@ -43,7 +44,7 @@ public class StudentController {
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
-	@GetMapping(path = "/get-one", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@GetMapping(path = "/get-one", consumes = { MediaType.ALL_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<Student> getOne(@RequestHeader String login) {
 		Student savedStudent = studentService.get(login);
 		if (savedStudent != null) {
@@ -52,7 +53,7 @@ public class StudentController {
 		return new ResponseEntity<Student>(HttpStatus.BAD_REQUEST);
 	}
 
-	@GetMapping(path = "/get-by-group", produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
+	@GetMapping(path = "/get-by-group", consumes = { MediaType.ALL_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity<List<Student>> findAllByGroup(@RequestHeader String name) {
 		List<Student> students = studentService.findAllByGroup(name);
 		if (students != null) {
@@ -63,9 +64,7 @@ public class StudentController {
 
 	@DeleteMapping(consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE })
 	ResponseEntity delete(@RequestBody Student student) {
-
 		studentService.delete(student);
 		return new ResponseEntity(HttpStatus.OK);
-
 	}
 }

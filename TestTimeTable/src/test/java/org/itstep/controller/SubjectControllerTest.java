@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -57,14 +58,64 @@ public class SubjectControllerTest {
 
 	@Test
 	public void testUpdate() {
+		
+		Subject subject = new Subject();
+		subject.setName("Java");
+		
+		Mockito.when(subjectService.update(Mockito.any(Subject.class))).thenReturn(subject);
+		
+		RequestEntity<Subject> request = null;
+		try {
+			request = new RequestEntity<Subject>(subject, HttpMethod.PUT, new URI("/subject"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		ResponseEntity<Subject> response = restTemplate.exchange(request, Subject.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Mockito.verify(subjectService, Mockito.times(1)).update(Mockito.any(Subject.class));
 	}
 
 	@Test
 	public void testGetOne() {
+		Subject subject = new Subject();
+		subject.setName("Java");
+		
+		Mockito.when(subjectService.get(Mockito.anyString())).thenReturn(subject);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("name", "Java");
+		
+		RequestEntity request = null;
+		try {
+			request = new RequestEntity(headers , HttpMethod.GET, new URI("/subject"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		ResponseEntity<Subject> response = restTemplate.exchange(request, Subject.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Mockito.verify(subjectService, Mockito.times(1)).get(Mockito.anyString());
 	}
 
 	@Test
 	public void testDelete() {
+		
+		Mockito.doNothing().when(subjectService).delete(Mockito.any(Subject.class));
+		
+		RequestEntity<Subject> request = null;
+		try {
+			request = new RequestEntity<Subject>(new Subject(), HttpMethod.DELETE, new URI("/subject"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		ResponseEntity<Subject> response = restTemplate.exchange(request, Subject.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Mockito.verify(subjectService, Mockito.times(1)).delete(Mockito.any(Subject.class));
 	}
 
 }
