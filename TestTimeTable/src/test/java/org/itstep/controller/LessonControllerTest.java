@@ -4,12 +4,16 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.itstep.ApplicationRunner;
+import org.itstep.model.Group;
 import org.itstep.model.Lesson;
 import org.itstep.model.Subject;
+import org.itstep.model.Teacher;
 import org.itstep.service.LessonService;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -27,43 +32,108 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ApplicationRunner.class)
-@SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
-public class LessonControllerTest {
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 
-	@Autowired
-	TestRestTemplate restTemplate;
-	
+public class LessonControllerTest {
 	@MockBean
 	LessonService lessonService;
-	
-	@Ignore
-	@Test
-	public void testSave() throws URISyntaxException {
-		Lesson lesson = new Lesson();
-		
+	Subject subjectInDB;
+	@Autowired
+	TestRestTemplate restTemplate;
+
+	private List<Lesson> lessons;
+
+	@Before
+	public void setToDB() throws Exception {
 		Subject subject = new Subject();
 		subject.setName("Java");
+
+		Teacher teacher = new Teacher();
+		teacher.setFirstName("Alex");
+		teacher.setSecondName("Ignatenko");
+		teacher.setLogin("Ignatenko2207");
+		teacher.setPassword("123456");
+		teacher.setSubject(subject);
+
+		Group testGroup = new Group();
+		testGroup.setName("ST21");
+		testGroup.setCourse("1");
+		testGroup.setSpecialization("JavaQA");
+lessons = new ArrayList<Lesson>();
+		for (int i = 1; i <= 3; i++) {
+			
+			Lesson less = new Lesson();
+			less.setSubject(subject);
+			less.setTeacher(teacher);
+			less.setCabinet("111");
+			less.setGroup(testGroup);
+			less.setStartTime((long) 45 * i);
+
+			lessons.add(less);
+		}
+	}
+
+	@Test
+	public void testSave() throws URISyntaxException {
+		Mockito.when(lessonService.save(Mockito.any(Lesson.class))).thenReturn(lessons.get(0));
+
+		RequestEntity<Lesson> request = new RequestEntity<Lesson>(lessons.get(0), HttpMethod.POST, new URI("/lesson"));
+
+		ResponseEntity<Lesson> response = restTemplate.exchange(request, Lesson.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		Mockito.verify(lessonService, Mockito.times(1)).save(Mockito.any(Lesson.class));
+	}
+
+	@Test
+	public void testUpdate() throws URISyntaxException {
+		Mockito.when(lessonService.update(Mockito.any(Lesson.class))).thenReturn(lessons.get(0));
+
+		RequestEntity<Lesson> request = new RequestEntity<Lesson>(lessons.get(0), HttpMethod.PUT, new URI("/lesson"));
+
+		ResponseEntity<Lesson> response = restTemplate.exchange(request, Lesson.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		Mockito.verify(lessonService, Mockito.times(1)).update(Mockito.any(Lesson.class));
+	}
+	@Test
+	public void testGetOne() throws URISyntaxException {
+		Mockito.when(lessonService.get(Mockito.anyInt())).thenReturn(lessons.get(0));
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("id","111");
 		
-		lesson.setSubject(subject);
-		
-		
-		Mockito.when(lessonService.save(Mockito.any(Lesson.class))).thenReturn(lesson);
-		RequestEntity<Lesson> request = new RequestEntity<Lesson>(lesson, HttpMethod.POST, new URI("/lesson"));
+		RequestEntity request = new RequestEntity(headers, HttpMethod.GET, new URI("/lesson/get-one"));
 		ResponseEntity<Lesson> response = restTemplate.exchange(request, Lesson.class);
 		
-		assertEquals(HttpStatus.OK, response.getStatusCode()); 
-		assertEquals("Java", response.getBody().getSubject().getName());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Mockito.verify(lessonService, Mockito.times(1)).get(Mockito.anyInt());
+	}
+
+	@Test
+	public void testFindAllByPeriod() throws URISyntaxException {
+		Mockito.when(lessonService.findAllByStartTime(Mockito.anyLong(), Mockito.anyLong())).thenReturn(lessons);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("start", "123334");
+		headers.add("end", "15666");
 		
-		Mockito.verify(lessonService , Mockito.times(1)).save(Mockito.any(Lesson.class));
+		RequestEntity request = new RequestEntity(headers, HttpMethod.GET, new URI("/lesson//get-by-period"));
+		ResponseEntity<List> response = restTemplate.exchange(request, List.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		Mockito.verify(lessonService, Mockito.times(1)).findAllByStartTime(Mockito.anyLong(), Mockito.anyLong());
+		
+//		assertEquals(3, response.getBody().size());
 	}
-
-	
 	@Test
-	public void testUpdate() {
-	}
+	public void testDelete() throws URISyntaxException {
+		Mockito.doNothing().when(lessonService).delete(Mockito.any(Lesson.class));
+		
+		RequestEntity<Lesson> request = new RequestEntity<Lesson>(lessons.get(0), HttpMethod.DELETE, new URI("/lesson"));
 
-	@Test
-	public void testGetOne() {
+		ResponseEntity<HttpStatus> response = restTemplate.exchange(request, HttpStatus.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		Mockito.verify(lessonService, Mockito.times(1)).delete(Mockito.any(Lesson.class));
 	}
 
 }

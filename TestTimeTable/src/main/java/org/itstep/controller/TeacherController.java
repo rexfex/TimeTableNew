@@ -2,6 +2,7 @@ package org.itstep.controller;
 
 import java.util.List;
 
+import org.itstep.model.Subject;
 import org.itstep.model.Teacher;
 import org.itstep.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class TeacherController {
 	}
 
 	@GetMapping(path = "/get-by-subject", consumes = { MediaType.ALL_VALUE }, produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
-	ResponseEntity<List<Teacher>> findAllBySubject(@RequestHeader String name) {
+	ResponseEntity<List<Teacher>> findAllBySubject (@RequestHeader String name) {
 		List<Teacher> teachers = teacherService.findAllBySubject(name);
 		if (teachers != null) {
 			return new ResponseEntity<List<Teacher>>(teachers, HttpStatus.OK);
